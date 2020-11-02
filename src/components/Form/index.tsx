@@ -31,6 +31,7 @@ export default function FormPropsTextFields({ handleClose }: props) {
       });
     },
   });
+
   return (
     <>
       <Formik
@@ -95,8 +96,8 @@ export default function FormPropsTextFields({ handleClose }: props) {
 
           return errors;
         }}
-        onSubmit={(values, { setSubmitting }) => {
-          insert_contact({
+        onSubmit={async (values, { setSubmitting }) => {
+          await insert_contact({
             variables: values,
           });
 
