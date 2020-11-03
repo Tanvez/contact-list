@@ -39,6 +39,18 @@ export const GET_USER = gql`
   }
 `;
 
+export const GET_CONTACT_USER = gql`
+  query Contacts {
+    contact(
+      where: {
+        user: { first_name: { _eq: "Tom" }, last_name: { _eq: "Holland" } }
+      }
+    ) {
+      user_id
+    }
+  }
+`;
+
 export const CREATE_CONTACT = gql`
   mutation CreateContact(
     $email: String!
@@ -119,54 +131,3 @@ export const DELETE_CONTACT = gql`
     }
   }
 `;
-// export const DELETE_CONTACT = gql`
-//   mutation delete_contact(
-//    { $email: String!
-//     $building: String!
-//     $street: String!
-//     $phone: String!
-//     $zip: String!
-//     $city: String!
-//     $state: String!
-//     $firstName: String!
-//     $lastName: String!}
-//   ) {
-//     insert_contact(
-//       objects: {
-//         address: {
-//           data: {
-//             building: $building
-//             city: $city
-//             state: $state
-//             street: $street
-//             zip: $zip
-//           }
-//         }
-//         email: { data: { email_address: $email } }
-//         phone: { data: { phone_number: $phone } }
-//         user: { data: { first_name: $firstName, last_name: $lastName } }
-//       }
-//     ) {
-//       returning {
-//         address {
-//           building
-//           city
-//           state
-//           street
-//           zip
-//         }
-//         email {
-//           email_address
-//         }
-//         phone {
-//           phone_number
-//         }
-//         user {
-//           id
-//           first_name
-//           last_name
-//         }
-//       }
-//     }
-//   }
-// `;

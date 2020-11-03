@@ -1,17 +1,21 @@
 import * as React from "react";
 import MUIDataTable from "mui-datatables";
+import { TableCell, TableRow } from "@material-ui/core";
 import AddContactButton from "../../components/Toolbar/AddContactButton";
 import Loading from "../../components/Loading";
 import { GET_CONTACTS, DELETE_CONTACT } from "../../graphql";
 import { useQuery, useMutation } from "@apollo/client";
+import Modal from "../../components/Modal";
 
 interface User {
   last_name: string;
   first_name: string;
+  id: string;
 }
 
 interface Email {
   email_address: string;
+  id: string;
 }
 
 interface Address {
@@ -20,10 +24,12 @@ interface Address {
   city: string;
   state: string;
   zip: string;
+  id: string;
 }
 
 interface Phone {
   phone_number: string;
+  id: string;
 }
 
 interface data {
@@ -34,40 +40,15 @@ interface data {
   phone: Phone;
 }
 
-export const column = [
-  "First Name",
-  "Last Name",
-  "Building",
-  "Street",
-  "City",
-  "State",
-  "Zip",
-  "Email",
-  "Phone",
-  {
-    name: "Edit",
-    options: {
-      filter: false,
-      sort: false,
-      empty: true,
-      customBodyRenderLite: (dataIndex: any, rowIndex: any) => {
-        return (
-          <button
-            onClick={() =>
-              window.alert(
-                `Clicked "Edit" for row ${rowIndex} with dataIndex of ${dataIndex}`
-              )
-            }
-          >
-            Edit
-          </button>
-        );
-      },
-    },
-  },
-];
-
 export default function DataTable() {
+  const [open, setOpen] = React.useState(false);
+  const [rowSelect, setRowSelect] = React.useState({});
+  const handleClick = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
   const { loading, error, data } = useQuery(GET_CONTACTS);
   const [delete_contact] = useMutation(DELETE_CONTACT, {
     update(cache, { data: { delete_contact } }) {
@@ -83,6 +64,29 @@ export default function DataTable() {
       });
     },
   });
+
+  const column = [
+    "First Name",
+    "Last Name",
+    "Building",
+    "Street",
+    "City",
+    "State",
+    "Zip",
+    "Email",
+    "Phone",
+    {
+      name: "Edit",
+      options: {
+        filter: false,
+        sort: false,
+        empty: true,
+        customBodyRenderLite: (dataIndex: any, rowIndex: any) => {
+          return <button onClick={handleClick}>Edit</button>;
+        },
+      },
+    },
+  ];
 
   if (loading) return <Loading />;
   if (error) return <p>Error</p>;
@@ -118,6 +122,24 @@ export default function DataTable() {
         });
       });
     },
+    onRowClick: (rowData: any, rowState: any) => {
+      setRowSelect(contact[rowState.dataIndex]);
+    },
+    expandableRows: true,
+    expandableRowsOnClick: true,
+    renderExpandableRow: (rowData: any, rowState: any) => (
+      <TableRow>
+        <TableCell />
+        <TableCell colSpan={5}>
+          TODO ADD DROPDOWN FOR OTHER CONTACT DETAILS
+        </TableCell>
+        <TableCell />
+        <TableCell />
+        <TableCell />
+        <TableCell />
+        <TableCell>TODO:EDIT BUTTON</TableCell>
+      </TableRow>
+    ),
   };
 
   return (
@@ -128,13 +150,7 @@ export default function DataTable() {
         columns={column}
         options={options}
       />
+      <Modal open={open} handleClose={handleClose} rowData={rowSelect} />
     </div>
   );
 }
-
-const data = {
-  email: "6585147a-0060-4b63-9e96-6e898b891f2a",
-  phone: "737004ab-7074-4e3f-9f48-82d0ea252fd5",
-  user: "7a486567-cc99-45e0-a4be-f31d36b2d898",
-  address: "11b4d254-56b7-4238-ad61-0c3425c019f5",
-};

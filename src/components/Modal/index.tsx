@@ -24,9 +24,14 @@ const useStyles = makeStyles((theme: Theme) =>
 interface props {
   handleClose?: any;
   open: boolean;
+  rowData?: any;
 }
 
-export default function TransitionsModal({ handleClose, open }: props) {
+export default function TransitionsModal({
+  handleClose,
+  open,
+  rowData,
+}: props) {
   const classes = useStyles();
 
   return (
@@ -47,7 +52,7 @@ export default function TransitionsModal({ handleClose, open }: props) {
           <div className={classes.paper}>
             <h2 id="transition-modal-title">Add Contact Info modal</h2>
             <p id="transition-modal-description">Add Contact Info</p>
-            <FormPropsTextFields handleClose={handleClose} />
+            <FormPropsTextFields handleClose={handleClose} rowData={rowData} />
           </div>
         </Fade>
       </Modal>

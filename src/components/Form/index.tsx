@@ -2,8 +2,8 @@ import React from "react";
 import { Formik, Form, Field } from "formik";
 import { Button, LinearProgress } from "@material-ui/core";
 import { TextField } from "formik-material-ui";
-import { useMutation } from "@apollo/client";
-import { CREATE_CONTACT, GET_CONTACTS } from "../../graphql";
+import { useMutation, useApolloClient, useQuery } from "@apollo/client";
+import { CREATE_CONTACT, GET_CONTACTS, GET_CONTACT_USER } from "../../graphql";
 
 interface Values {
   email: string;
@@ -19,9 +19,12 @@ interface Values {
 
 interface props {
   handleClose?: any;
+  rowData?: any;
 }
 
-export default function FormPropsTextFields({ handleClose }: props) {
+export default function FormPropsTextFields({ handleClose, rowData }: props) {
+  const client = useApolloClient();
+  const { data } = useQuery(GET_CONTACTS);
   const [insert_contact] = useMutation(CREATE_CONTACT, {
     update(cache, { data: { insert_contact } }) {
       const { contact }: any = cache.readQuery({ query: GET_CONTACTS });
@@ -32,19 +35,28 @@ export default function FormPropsTextFields({ handleClose }: props) {
     },
   });
 
+  const findUser = (firstName: string, lastName: string) => {
+    const { contact } = data;
+    const result = contact.find(
+      (e: any) =>
+        e.user.last_name === lastName && e.user.first_name === firstName
+    );
+    return result || null;
+  };
+
   return (
     <>
       <Formik
         initialValues={{
-          email: "",
-          building: "",
-          street: "",
-          phone: "",
-          city: "",
-          state: "",
-          zip: "",
-          firstName: "",
-          lastName: "",
+          firstName: (rowData && rowData.user.first_name) || "",
+          lastName: (rowData && rowData.user.last_name) || "",
+          building: (rowData && rowData.address.building) || "",
+          street: (rowData && rowData.address.street) || "",
+          city: (rowData && rowData.address.city) || "",
+          state: (rowData && rowData.address.state) || "",
+          zip: (rowData && rowData.address.zip) || "",
+          email: (rowData && rowData.email.email_address) || "",
+          phone: (rowData && rowData.phone.phone_number) || "",
         }}
         validate={(values) => {
           const errors: Partial<Values> = {};
@@ -97,9 +109,14 @@ export default function FormPropsTextFields({ handleClose }: props) {
           return errors;
         }}
         onSubmit={async (values, { setSubmitting }) => {
-          await insert_contact({
-            variables: values,
-          });
+          const user = findUser(values.firstName, values.lastName);
+
+          if (!user) {
+            await insert_contact({
+              variables: values,
+            });
+          }
+          console.log(user);
 
           setSubmitting(false);
           handleClose();
