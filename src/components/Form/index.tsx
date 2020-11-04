@@ -2,8 +2,8 @@ import React from "react";
 import { Formik, Form, Field } from "formik";
 import { Button, LinearProgress } from "@material-ui/core";
 import { TextField } from "formik-material-ui";
-import { useMutation, useApolloClient, useQuery } from "@apollo/client";
-import { CREATE_CONTACT, GET_CONTACTS, GET_CONTACT_USER } from "../../graphql";
+import { useMutation } from "@apollo/client";
+import { CREATE_CONTACT, GET_CONTACTS, UPDATE_CONTACT } from "../../graphql";
 
 interface Values {
   email: string;
@@ -23,8 +23,7 @@ interface props {
 }
 
 export default function FormPropsTextFields({ handleClose, rowData }: props) {
-  const client = useApolloClient();
-  const { data } = useQuery(GET_CONTACTS);
+  // const client = useApolloClient();
   const [insert_contact] = useMutation(CREATE_CONTACT, {
     update(cache, { data: { insert_contact } }) {
       const { contact }: any = cache.readQuery({ query: GET_CONTACTS });
@@ -35,14 +34,22 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
     },
   });
 
-  const findUser = (firstName: string, lastName: string) => {
-    const { contact } = data;
-    const result = contact.find(
-      (e: any) =>
-        e.user.last_name === lastName && e.user.first_name === firstName
-    );
-    return result || null;
-  };
+  const [update_user] = useMutation(UPDATE_CONTACT, {
+    // you can get access to all keys thats in your mutation
+    update(cache, { data: { update_contact } }) {
+      const { contact }: any = cache.readQuery({ query: GET_CONTACTS });
+      const { returning } = update_contact;
+      const contactIndex = contact.findIndex((e: any) => {
+        return e.user_id === returning[0].user_id;
+      });
+      const copyContact = [...contact];
+      copyContact.splice(contactIndex, 1, returning[0]);
+      cache.writeQuery({
+        query: GET_CONTACTS,
+        data: { contact: copyContact },
+      });
+    },
+  });
 
   return (
     <>
@@ -109,14 +116,49 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
           return errors;
         }}
         onSubmit={async (values, { setSubmitting }) => {
-          const user = findUser(values.firstName, values.lastName);
+          const {
+            email,
+            building,
+            street,
+            phone,
+            city,
+            state,
+            zip,
+            firstName,
+            lastName,
+          } = values;
 
-          if (!user) {
+          if (rowData) {
+            const {
+              address_id: addressId,
+              user_id: userId,
+              phone_id: phoneId,
+              email_id: emailId,
+              id,
+            } = rowData;
+            await update_user({
+              variables: {
+                email,
+                building,
+                street,
+                phone,
+                city,
+                state,
+                zip,
+                firstName,
+                lastName,
+                addressId,
+                userId,
+                phoneId,
+                emailId,
+                id,
+              },
+            });
+          } else {
             await insert_contact({
               variables: values,
             });
           }
-          console.log(user);
 
           setSubmitting(false);
           handleClose();

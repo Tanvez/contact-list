@@ -131,3 +131,100 @@ export const DELETE_CONTACT = gql`
     }
   }
 `;
+
+export const UPDATE_CONTACT = gql`
+  mutation updateContact(
+    $email: String!
+    $building: String!
+    $street: String!
+    $phone: String!
+    $zip: String!
+    $city: String!
+    $state: String!
+    $firstName: String!
+    $lastName: String!
+    $emailId: uuid!
+    $addressId: uuid!
+    $phoneId: uuid!
+    $userId: uuid!
+    $id: uuid!
+  ) {
+    update_user(
+      where: { id: { _eq: $userId } }
+      _set: { first_name: $firstName, last_name: $lastName }
+    ) {
+      affected_rows
+      returning {
+        id
+        last_name
+        first_name
+      }
+    }
+    update_phone(
+      where: { id: { _eq: $phoneId } }
+      _set: { phone_number: $phone }
+    ) {
+      affected_rows
+      returning {
+        id
+        phone_number
+      }
+    }
+    update_email(
+      where: { id: { _eq: $emailId } }
+      _set: { email_address: $email }
+    ) {
+      affected_rows
+      returning {
+        email_address
+        id
+      }
+    }
+    update_address(
+      where: { id: { _eq: $addressId } }
+      _set: {
+        city: $city
+        building: $building
+        state: $state
+        street: $street
+        zip: $zip
+      }
+    ) {
+      affected_rows
+      returning {
+        building
+        city
+        id
+        state
+        street
+        zip
+      }
+    }
+    update_contact(where: { id: { _eq: $id } }, _set: { id: $id }) {
+      returning {
+        id
+        address {
+          building
+          city
+          state
+          street
+          zip
+        }
+        email {
+          email_address
+        }
+        phone {
+          phone_number
+        }
+        user {
+          first_name
+          last_name
+        }
+        email_id
+        address_id
+        phone_id
+        user_id
+      }
+    }
+  }
+`;
