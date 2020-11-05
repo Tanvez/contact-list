@@ -126,7 +126,6 @@ export default function DataTable() {
       });
     },
     onRowClick: (rowData: any, rowState: any) => {
-      console.log({ rowData });
       setRowSelect(userContacts[rowState.dataIndex]);
     },
     expandableRows: true,

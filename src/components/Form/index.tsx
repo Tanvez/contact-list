@@ -5,7 +5,6 @@ import { TextField } from "formik-material-ui";
 import { useMutation, useApolloClient, useQuery } from "@apollo/client";
 import {
   CREATE_CONTACT,
-  GET_CONTACTS,
   UPDATE_CONTACT,
   GET_USER_CONTACTS,
 } from "../../graphql";
@@ -30,7 +29,7 @@ interface props {
 
 export default function FormPropsTextFields({ handleClose, rowData }: props) {
   const client = useApolloClient();
-  const { loading, error, data, refetch } = useQuery(GET_USER_CONTACTS);
+  const { refetch } = useQuery(GET_USER_CONTACTS);
 
   const [insert_contact] = useMutation(CREATE_CONTACT, {
     update(cache, { data: { insert_contact } }) {
