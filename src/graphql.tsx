@@ -62,6 +62,7 @@ export const CREATE_CONTACT = gql`
     $state: String!
     $firstName: String!
     $lastName: String!
+    $userId: uuid
   ) {
     insert_contact(
       objects: {
@@ -76,7 +77,13 @@ export const CREATE_CONTACT = gql`
         }
         email: { data: { email_address: $email } }
         phone: { data: { phone_number: $phone } }
-        user: { data: { first_name: $firstName, last_name: $lastName } }
+        user: {
+          data: { first_name: $firstName, last_name: $lastName, id: $userId }
+          on_conflict: {
+            constraint: user_pkey
+            update_columns: [first_name, last_name]
+          }
+        }
       }
     ) {
       returning {
@@ -129,6 +136,18 @@ export const DELETE_CONTACT = gql`
         user_id
       }
     }
+    # delete_email(where: { id: { _eq: $email_id } }) {
+    #   affected_rows
+    # }
+    # delete_address(where: { id: { _eq: $address_id } }) {
+    #   affected_rows
+    # }
+    # delete_phone(where: { id: { _eq: $phone_id } }) {
+    #   affected_rows
+    # }
+    # delete_user(where: { id: { _eq: $user_id } }) {
+    #   affected_rows
+    # }
   }
 `;
 

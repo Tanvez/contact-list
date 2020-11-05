@@ -2,8 +2,9 @@ import React from "react";
 import { Formik, Form, Field } from "formik";
 import { Button, LinearProgress } from "@material-ui/core";
 import { TextField } from "formik-material-ui";
-import { useMutation } from "@apollo/client";
+import { useMutation, useApolloClient } from "@apollo/client";
 import { CREATE_CONTACT, GET_CONTACTS, UPDATE_CONTACT } from "../../graphql";
+import { uuid } from "uuidv4";
 
 interface Values {
   email: string;
@@ -23,7 +24,9 @@ interface props {
 }
 
 export default function FormPropsTextFields({ handleClose, rowData }: props) {
-  // const client = useApolloClient();
+  const client = useApolloClient();
+  const cacheData: any = client.readQuery({ query: GET_CONTACTS });
+
   const [insert_contact] = useMutation(CREATE_CONTACT, {
     update(cache, { data: { insert_contact } }) {
       const { contact }: any = cache.readQuery({ query: GET_CONTACTS });
@@ -155,8 +158,19 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
               },
             });
           } else {
-            await insert_contact({
-              variables: values,
+            const { contact } = cacheData;
+            let user = undefined;
+            if (contact) {
+              user = contact.find(
+                (e: any) =>
+                  e.user.first_name === firstName &&
+                  e.user.last_name === lastName
+              );
+            }
+            const userId = user ? user.user_id : uuid();
+            // const emailId = user ? user.email_id : uuid();
+            insert_contact({
+              variables: { ...values, userId },
             });
           }
 
