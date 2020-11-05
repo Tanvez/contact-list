@@ -33,19 +33,19 @@ interface Phone {
   id: string;
 }
 
-interface data {
-  id: number;
-  user: User;
-  address: Address;
-  email: Email;
-  phone: Phone;
-}
+// interface data {
+//   id: number;
+//   user: User;
+//   address: Address;
+//   email: Email;
+//   phone: Phone;
+// }
 
 interface Contact {
   email_id: string;
   user_id: string;
   phone_id: string;
-  addres_id: string;
+  address_id: string;
   id: string;
   address: Address;
   user: User;
@@ -56,15 +56,17 @@ interface Contact {
 export default function DataTable() {
   const [open, setOpen] = React.useState(false);
   const [rowSelect, setRowSelect] = React.useState({});
-  const handleClick = () => {
-    setOpen(true);
-  };
+
   const handleClose = () => {
     setOpen(false);
   };
-  // const { loading, error, data } = useQuery(GET_CONTACTS);
+
+  const editButton = (values: any) => {
+    setRowSelect(values);
+    setOpen(true);
+  };
+
   const { loading, error, data } = useQuery(GET_USER_CONTACTS);
-  console.log(data);
   const [delete_user] = useMutation(DELETE_CONTACT, {
     update(cache, { data: { delete_user } }) {
       const { user }: any = cache.readQuery({
@@ -97,7 +99,6 @@ export default function DataTable() {
 
   if (loading) return <Loading />;
   if (error) return <p>Error</p>;
-  const { contact } = data;
 
   const { user: userContacts } = data;
   const arrayData = userContacts.map((user: User) => [
@@ -125,32 +126,65 @@ export default function DataTable() {
       });
     },
     onRowClick: (rowData: any, rowState: any) => {
-      setRowSelect(contact[rowState.dataIndex]);
+      console.log({ rowData });
+      setRowSelect(userContacts[rowState.dataIndex]);
     },
     expandableRows: true,
     expandableRowsOnClick: true,
     renderExpandableRow: (rowData: any, rowState: any) => {
+      const { last_name, first_name, id } = userContacts[rowState.dataIndex];
       return (
         userContacts &&
         userContacts[rowState.dataIndex].contacts.map(
-          ({ address, email, phone }: data) => (
-            <>
-              <TableRow>
-                <TableCell />
-                <TableCell colSpan={2} />
-                <TableCell>{address.building}</TableCell>
-                <TableCell>{address.street}</TableCell>
-                <TableCell>{address.city}</TableCell>
-                <TableCell>{address.state}</TableCell>
-                <TableCell>{address.zip}</TableCell>
-                <TableCell>{email.email_address}</TableCell>
-                <TableCell>{phone.phone_number}</TableCell>
-                <TableCell>
-                  <button onClick={handleClick}>Edit</button>
-                </TableCell>
-              </TableRow>
-            </>
-          )
+          ({
+            address,
+            email,
+            phone,
+            email_id,
+            user_id,
+            phone_id,
+            address_id,
+          }: Contact) => {
+            return (
+              <>
+                <TableRow>
+                  <TableCell />
+                  <TableCell colSpan={2} />
+                  <TableCell>{address.building}</TableCell>
+                  <TableCell>{address.street}</TableCell>
+                  <TableCell>{address.city}</TableCell>
+                  <TableCell>{address.state}</TableCell>
+                  <TableCell>{address.zip}</TableCell>
+                  <TableCell>{email.email_address}</TableCell>
+                  <TableCell>{phone.phone_number}</TableCell>
+                  <TableCell>
+                    <button
+                      onClick={() =>
+                        editButton({
+                          lastName: last_name,
+                          firstName: first_name,
+                          id,
+                          street: address.street,
+                          building: address.building,
+                          city: address.city,
+                          state: address.state,
+                          zip: address.zip,
+                          email: email.email_address,
+                          phone: phone.phone_number,
+                          emailId: email_id,
+                          userId: user_id,
+                          phoneId: phone_id,
+                          addressId: address_id,
+                        })
+                      }
+                    >
+                      Edit
+                    </button>
+                  </TableCell>
+                </TableRow>
+              </>
+            );
+          }
         )
       );
     },

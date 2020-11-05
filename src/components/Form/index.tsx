@@ -30,7 +30,7 @@ interface props {
 
 export default function FormPropsTextFields({ handleClose, rowData }: props) {
   const client = useApolloClient();
-  const { loading, error, data, refetch } = useQuery(GET_CONTACTS);
+  const { loading, error, data, refetch } = useQuery(GET_USER_CONTACTS);
 
   const [insert_contact] = useMutation(CREATE_CONTACT, {
     update(cache, { data: { insert_contact } }) {
@@ -44,16 +44,16 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
 
   const [update_user] = useMutation(UPDATE_CONTACT, {
     // you can get access to all keys thats in your mutation
-    update(cache, { data: { update_contact } }) {
-      const { contact }: any = cache.readQuery({ query: GET_CONTACTS });
-      const { returning } = update_contact;
-      const contactIndex = contact.findIndex((e: any) => {
-        return e.user_id === returning[0].user_id;
+    update(cache, { data: { update_user } }) {
+      const { user }: any = cache.readQuery({ query: GET_USER_CONTACTS });
+      const { returning } = update_user;
+      const contactIndex = user.findIndex((e: any) => {
+        return e.id === returning[0].id;
       });
-      const copyContact = [...contact];
+      const copyContact = [...user];
       copyContact.splice(contactIndex, 1, returning[0]);
       cache.writeQuery({
-        query: GET_CONTACTS,
+        query: GET_USER_CONTACTS,
         data: { contact: copyContact },
       });
     },
@@ -63,15 +63,15 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
     <>
       <Formik
         initialValues={{
-          firstName: (rowData && rowData.user.first_name) || "",
-          lastName: (rowData && rowData.user.last_name) || "",
-          building: (rowData && rowData.address.building) || "",
-          street: (rowData && rowData.address.street) || "",
-          city: (rowData && rowData.address.city) || "",
-          state: (rowData && rowData.address.state) || "",
-          zip: (rowData && rowData.address.zip) || "",
-          email: (rowData && rowData.email.email_address) || "",
-          phone: (rowData && rowData.phone.phone_number) || "",
+          firstName: (rowData && rowData.firstName) || "",
+          lastName: (rowData && rowData.lastName) || "",
+          building: (rowData && rowData.building) || "",
+          street: (rowData && rowData.street) || "",
+          city: (rowData && rowData.city) || "",
+          state: (rowData && rowData.state) || "",
+          zip: (rowData && rowData.zip) || "",
+          email: (rowData && rowData.email) || "",
+          phone: (rowData && rowData.phone) || "",
         }}
         validate={(values) => {
           const errors: Partial<Values> = {};
@@ -137,13 +137,7 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
           } = values;
 
           if (rowData) {
-            const {
-              address_id: addressId,
-              user_id: userId,
-              phone_id: phoneId,
-              email_id: emailId,
-              id,
-            } = rowData;
+            const { addressId, userId, phoneId, emailId } = rowData;
             await update_user({
               variables: {
                 email,
@@ -159,21 +153,20 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
                 userId,
                 phoneId,
                 emailId,
-                id,
               },
             });
           } else {
-            const cacheData = await client.readQuery({ query: GET_CONTACTS });
-            const { contact } = cacheData;
-            let user = undefined;
-            if (contact) {
-              user = contact.find(
+            const { user } = await client.readQuery({
+              query: GET_USER_CONTACTS,
+            });
+            let found = undefined;
+            if (user) {
+              found = user.find(
                 (e: any) =>
-                  e.user.first_name === firstName &&
-                  e.user.last_name === lastName
+                  e.first_name === firstName && e.last_name === lastName
               );
             }
-            const userId = user ? user.id : uuid();
+            const userId = found ? found.id : uuid();
             await insert_contact({
               variables: { ...values, userId },
             });

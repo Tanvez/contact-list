@@ -176,20 +176,8 @@ export const UPDATE_CONTACT = gql`
     $emailId: uuid!
     $addressId: uuid!
     $phoneId: uuid!
-    $userId: uuid!
-    $id: uuid!
+    $userId: uuid! # $id: uuid!
   ) {
-    update_user(
-      where: { id: { _eq: $userId } }
-      _set: { first_name: $firstName, last_name: $lastName }
-    ) {
-      affected_rows
-      returning {
-        id
-        last_name
-        first_name
-      }
-    }
     update_phone(
       where: { id: { _eq: $phoneId } }
       _set: { phone_number: $phone }
@@ -230,30 +218,35 @@ export const UPDATE_CONTACT = gql`
         zip
       }
     }
-    update_contact(where: { id: { _eq: $id } }, _set: { id: $id }) {
+    update_user(
+      where: { id: { _eq: $userId } }
+      _set: { first_name: $firstName, last_name: $lastName }
+    ) {
+      affected_rows
       returning {
         id
-        address {
-          building
-          city
-          state
-          street
-          zip
+        last_name
+        first_name
+        contacts {
+          address_id
+          email_id
+          id
+          phone_id
+          user_id
+          address {
+            building
+            city
+            state
+            street
+            zip
+          }
+          email {
+            email_address
+          }
+          phone {
+            phone_number
+          }
         }
-        email {
-          email_address
-        }
-        phone {
-          phone_number
-        }
-        user {
-          first_name
-          last_name
-        }
-        email_id
-        address_id
-        phone_id
-        user_id
       }
     }
   }
