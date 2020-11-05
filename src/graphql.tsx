@@ -32,6 +32,9 @@ export const GET_CONTACTS = gql`
 export const GET_USER_CONTACTS = gql`
   query UserContacts {
     user {
+      first_name
+      last_name
+      id
       contacts {
         address_id
         email_id
@@ -50,10 +53,6 @@ export const GET_USER_CONTACTS = gql`
         }
         phone {
           phone_number
-        }
-        user {
-          first_name
-          last_name
         }
       }
     }
@@ -135,38 +134,24 @@ export const DELETE_CONTACT = gql`
     $address_id: uuid!
     $phone_id: uuid!
     $user_id: uuid!
-    $id: uuid!
   ) {
-    delete_contact(
-      where: {
-        address_id: { _eq: $address_id }
-        email_id: { _eq: $email_id }
-        id: { _eq: $id }
-        phone_id: { _eq: $phone_id }
-        user_id: { _eq: $user_id }
-      }
-    ) {
+    delete_user(where: { id: { _eq: $user_id } }) {
       affected_rows
       returning {
-        address_id
-        email_id
+        last_name
         id
-        phone_id
-        user_id
+        first_name
       }
     }
-    # delete_email(where: { id: { _eq: $email_id } }) {
-    #   affected_rows
-    # }
-    # delete_address(where: { id: { _eq: $address_id } }) {
-    #   affected_rows
-    # }
-    # delete_phone(where: { id: { _eq: $phone_id } }) {
-    #   affected_rows
-    # }
-    # delete_user(where: { id: { _eq: $user_id } }) {
-    #   affected_rows
-    # }
+    delete_email(where: { id: { _eq: $email_id } }) {
+      affected_rows
+    }
+    delete_address(where: { id: { _eq: $address_id } }) {
+      affected_rows
+    }
+    delete_phone(where: { id: { _eq: $phone_id } }) {
+      affected_rows
+    }
   }
 `;
 

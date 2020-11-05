@@ -11,6 +11,7 @@ interface User {
   last_name: string;
   first_name: string;
   id: string;
+  contact: Contact;
 }
 
 interface Email {
@@ -40,9 +41,17 @@ interface data {
   phone: Phone;
 }
 
-// interface dataU {
-
-// }
+interface Contact {
+  email_id: string;
+  user_id: string;
+  phone_id: string;
+  addres_id: string;
+  id: string;
+  address: Address;
+  user: User;
+  phone: Phone;
+  email: Email;
+}
 
 export default function DataTable() {
   const [open, setOpen] = React.useState(false);
@@ -57,11 +66,14 @@ export default function DataTable() {
   const { loading: loadingU, error: errorU, data: dataU } = useQuery(
     GET_USER_CONTACTS
   );
-  const [delete_contact] = useMutation(DELETE_CONTACT, {
-    update(cache, { data: { delete_contact } }) {
-      const { contact }: any = cache.readQuery({ query: GET_CONTACTS });
-      const { returning } = delete_contact;
-      var c = contact.filter(
+  const [delete_user] = useMutation(DELETE_CONTACT, {
+    update(cache, { data: { delete_user } }) {
+      const { user }: any = cache.readQuery({
+        query: GET_USER_CONTACTS,
+      });
+      const { returning } = delete_user;
+      console.log({ user, delete_user });
+      let c = user.filter(
         (objFromA: any) =>
           !returning.find((objFromB: any) => objFromA.id === objFromB.id)
       );
@@ -99,20 +111,11 @@ export default function DataTable() {
   if (error || errorU) return <p>Error</p>;
   const { contact } = data;
 
-  const arrayData = contact.map(({ user, address, email, phone }: data) => [
+  const { user: userContacts } = dataU;
+  const arrayData = userContacts.map((user: User) => [
     user.first_name,
     user.last_name,
-    address.building,
-    address.street,
-    address.city,
-    address.state,
-    address.zip,
-    email.email_address,
-    phone.phone_number,
   ]);
-
-  // const userContacts = dataU.co
-  console.log(dataU);
 
   const options = {
     filterType: "checkbox" as any,
@@ -124,12 +127,13 @@ export default function DataTable() {
     onRowsDelete: (row: any) => {
       const { data } = row;
       data.forEach((e: any) => {
-        const { email_id, address_id, phone_id, user_id, id } = contact[
-          e.dataIndex
-        ];
-        delete_contact({
-          variables: { email_id, address_id, phone_id, user_id, id },
-        });
+        const { contacts } = userContacts[e.dataIndex];
+        contacts.forEach(
+          async ({ email_id, address_id, phone_id, user_id }: any) =>
+            await delete_user({
+              variables: { email_id, address_id, phone_id, user_id },
+            })
+        );
       });
     },
     onRowClick: (rowData: any, rowState: any) => {
@@ -138,22 +142,27 @@ export default function DataTable() {
     expandableRows: true,
     expandableRowsOnClick: true,
     renderExpandableRow: (rowData: any, rowState: any) => {
-      console.log(rowState, contact[rowState.dataIndex]);
+      // console.log(rowState, contact[rowState.dataIndex]);
       return (
-        <>
-          <TableRow>
-            <TableCell />
-            <TableCell colSpan={2} />
-            <TableCell>{rowData[2]}</TableCell>
-            <TableCell>{rowData[3]}</TableCell>
-            <TableCell>{rowData[4]}</TableCell>
-            <TableCell>{rowData[5]}</TableCell>
-            <TableCell>{rowData[6]}</TableCell>
-            <TableCell>{rowData[7]}</TableCell>
-            <TableCell>{rowData[8]}</TableCell>
-            <TableCell>TODO:EDIT BUTTON</TableCell>
-          </TableRow>
-        </>
+        userContacts &&
+        userContacts[rowState.dataIndex].contacts.map(
+          ({ address, email, phone }: data) => (
+            <>
+              <TableRow>
+                <TableCell />
+                <TableCell colSpan={2} />
+                <TableCell>{address.building}</TableCell>
+                <TableCell>{address.street}</TableCell>
+                <TableCell>{address.city}</TableCell>
+                <TableCell>{address.state}</TableCell>
+                <TableCell>{address.zip}</TableCell>
+                <TableCell>{email.email_address}</TableCell>
+                <TableCell>{phone.phone_number}</TableCell>
+                <TableCell>TODO:EDIT BUTTON</TableCell>
+              </TableRow>
+            </>
+          )
+        )
       );
     },
   };

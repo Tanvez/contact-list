@@ -2,7 +2,7 @@ import React from "react";
 import { Formik, Form, Field } from "formik";
 import { Button, LinearProgress } from "@material-ui/core";
 import { TextField } from "formik-material-ui";
-import { useMutation, useApolloClient } from "@apollo/client";
+import { useMutation, useApolloClient, useQuery } from "@apollo/client";
 import { CREATE_CONTACT, GET_CONTACTS, UPDATE_CONTACT } from "../../graphql";
 import { uuid } from "uuidv4";
 
@@ -25,6 +25,7 @@ interface props {
 
 export default function FormPropsTextFields({ handleClose, rowData }: props) {
   const client = useApolloClient();
+  const { loading, error, data, refetch } = useQuery(GET_CONTACTS);
 
   const [insert_contact] = useMutation(CREATE_CONTACT, {
     update(cache, { data: { insert_contact } }) {
@@ -172,6 +173,7 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
               variables: { ...values, userId },
             });
           }
+          await refetch();
 
           setSubmitting(false);
           handleClose();
