@@ -72,7 +72,6 @@ export default function DataTable() {
         query: GET_USER_CONTACTS,
       });
       const { returning } = delete_user;
-      console.log({ user, delete_user });
       let c = user.filter(
         (objFromA: any) =>
           !returning.find((objFromB: any) => objFromA.id === objFromB.id)
@@ -142,7 +141,6 @@ export default function DataTable() {
     expandableRows: true,
     expandableRowsOnClick: true,
     renderExpandableRow: (rowData: any, rowState: any) => {
-      // console.log(rowState, contact[rowState.dataIndex]);
       return (
         userContacts &&
         userContacts[rowState.dataIndex].contacts.map(
