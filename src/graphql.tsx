@@ -105,23 +105,30 @@ export const CREATE_CONTACT = gql`
       }
     ) {
       returning {
-        address {
-          building
-          city
-          state
-          street
-          zip
-        }
-        email {
-          email_address
-        }
-        phone {
-          phone_number
-        }
         user {
           id
           first_name
           last_name
+          contacts {
+            address_id
+            email_id
+            id
+            phone_id
+            user_id
+            address {
+              building
+              city
+              state
+              street
+              zip
+            }
+            email {
+              email_address
+            }
+            phone {
+              phone_number
+            }
+          }
         }
       }
     }

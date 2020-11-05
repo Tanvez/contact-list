@@ -37,7 +37,7 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
       const { user }: any = cache.readQuery({ query: GET_USER_CONTACTS });
       cache.writeQuery({
         query: GET_USER_CONTACTS,
-        data: { user: user.concat([insert_contact.returning[0]]) },
+        data: { user: user.concat([insert_contact.returning[0].user]) },
       });
     },
   });

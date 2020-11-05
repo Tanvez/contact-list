@@ -3,7 +3,7 @@ import MUIDataTable from "mui-datatables";
 import { TableCell, TableRow } from "@material-ui/core";
 import AddContactButton from "../../components/Toolbar/AddContactButton";
 import Loading from "../../components/Loading";
-import { GET_CONTACTS, DELETE_CONTACT, GET_USER_CONTACTS } from "../../graphql";
+import { DELETE_CONTACT, GET_USER_CONTACTS } from "../../graphql";
 import { useQuery, useMutation } from "@apollo/client";
 import Modal from "../../components/Modal";
 
@@ -64,6 +64,7 @@ export default function DataTable() {
   };
   // const { loading, error, data } = useQuery(GET_CONTACTS);
   const { loading, error, data } = useQuery(GET_USER_CONTACTS);
+  console.log(data);
   const [delete_user] = useMutation(DELETE_CONTACT, {
     update(cache, { data: { delete_user } }) {
       const { user }: any = cache.readQuery({
@@ -91,17 +92,7 @@ export default function DataTable() {
     "Zip",
     "Email",
     "Phone",
-    {
-      name: "Edit",
-      options: {
-        filter: false,
-        sort: false,
-        empty: true,
-        customBodyRenderLite: (dataIndex: any, rowIndex: any) => {
-          return <button onClick={handleClick}>Edit</button>;
-        },
-      },
-    },
+    "Edit",
   ];
 
   if (loading) return <Loading />;
@@ -154,7 +145,9 @@ export default function DataTable() {
                 <TableCell>{address.zip}</TableCell>
                 <TableCell>{email.email_address}</TableCell>
                 <TableCell>{phone.phone_number}</TableCell>
-                <TableCell>TODO:EDIT BUTTON</TableCell>
+                <TableCell>
+                  <button onClick={handleClick}>Edit</button>
+                </TableCell>
               </TableRow>
             </>
           )
