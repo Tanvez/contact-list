@@ -25,7 +25,6 @@ interface props {
 
 export default function FormPropsTextFields({ handleClose, rowData }: props) {
   const client = useApolloClient();
-  const cacheData: any = client.readQuery({ query: GET_CONTACTS });
 
   const [insert_contact] = useMutation(CREATE_CONTACT, {
     update(cache, { data: { insert_contact } }) {
@@ -158,6 +157,7 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
               },
             });
           } else {
+            const cacheData = await client.readQuery({ query: GET_CONTACTS });
             const { contact } = cacheData;
             let user = undefined;
             if (contact) {
@@ -167,9 +167,8 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
                   e.user.last_name === lastName
               );
             }
-            const userId = user ? user.user_id : uuid();
-            // const emailId = user ? user.email_id : uuid();
-            insert_contact({
+            const userId = user ? user.id : uuid();
+            await insert_contact({
               variables: { ...values, userId },
             });
           }

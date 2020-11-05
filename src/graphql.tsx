@@ -29,24 +29,43 @@ export const GET_CONTACTS = gql`
   }
 `;
 
+export const GET_USER_CONTACTS = gql`
+  query UserContacts {
+    user {
+      contacts {
+        address_id
+        email_id
+        id
+        phone_id
+        user_id
+        address {
+          building
+          city
+          state
+          street
+          zip
+        }
+        email {
+          email_address
+        }
+        phone {
+          phone_number
+        }
+        user {
+          first_name
+          last_name
+        }
+      }
+    }
+  }
+`;
+
 export const GET_USER = gql`
   query User($lastName: String!, $firstName: String!) {
     user(
       where: { last_name: { _eq: $lastName }, first_name: { _eq: $firstName } }
     ) {
       id
-    }
-  }
-`;
-
-export const GET_CONTACT_USER = gql`
-  query Contacts {
-    contact(
-      where: {
-        user: { first_name: { _eq: "Tom" }, last_name: { _eq: "Holland" } }
-      }
-    ) {
-      user_id
     }
   }
 `;

@@ -3,7 +3,7 @@ import MUIDataTable from "mui-datatables";
 import { TableCell, TableRow } from "@material-ui/core";
 import AddContactButton from "../../components/Toolbar/AddContactButton";
 import Loading from "../../components/Loading";
-import { GET_CONTACTS, DELETE_CONTACT } from "../../graphql";
+import { GET_CONTACTS, DELETE_CONTACT, GET_USER_CONTACTS } from "../../graphql";
 import { useQuery, useMutation } from "@apollo/client";
 import Modal from "../../components/Modal";
 
@@ -40,6 +40,10 @@ interface data {
   phone: Phone;
 }
 
+// interface dataU {
+
+// }
+
 export default function DataTable() {
   const [open, setOpen] = React.useState(false);
   const [rowSelect, setRowSelect] = React.useState({});
@@ -50,6 +54,9 @@ export default function DataTable() {
     setOpen(false);
   };
   const { loading, error, data } = useQuery(GET_CONTACTS);
+  const { loading: loadingU, error: errorU, data: dataU } = useQuery(
+    GET_USER_CONTACTS
+  );
   const [delete_contact] = useMutation(DELETE_CONTACT, {
     update(cache, { data: { delete_contact } }) {
       const { contact }: any = cache.readQuery({ query: GET_CONTACTS });
@@ -88,8 +95,8 @@ export default function DataTable() {
     },
   ];
 
-  if (loading) return <Loading />;
-  if (error) return <p>Error</p>;
+  if (loading || loadingU) return <Loading />;
+  if (error || errorU) return <p>Error</p>;
   const { contact } = data;
 
   const arrayData = contact.map(({ user, address, email, phone }: data) => [
@@ -103,6 +110,9 @@ export default function DataTable() {
     email.email_address,
     phone.phone_number,
   ]);
+
+  // const userContacts = dataU.co
+  console.log(dataU);
 
   const options = {
     filterType: "checkbox" as any,
@@ -127,19 +137,25 @@ export default function DataTable() {
     },
     expandableRows: true,
     expandableRowsOnClick: true,
-    renderExpandableRow: (rowData: any, rowState: any) => (
-      <TableRow>
-        <TableCell />
-        <TableCell colSpan={5}>
-          TODO ADD DROPDOWN FOR OTHER CONTACT DETAILS
-        </TableCell>
-        <TableCell />
-        <TableCell />
-        <TableCell />
-        <TableCell />
-        <TableCell>TODO:EDIT BUTTON</TableCell>
-      </TableRow>
-    ),
+    renderExpandableRow: (rowData: any, rowState: any) => {
+      console.log(rowState, contact[rowState.dataIndex]);
+      return (
+        <>
+          <TableRow>
+            <TableCell />
+            <TableCell colSpan={2} />
+            <TableCell>{rowData[2]}</TableCell>
+            <TableCell>{rowData[3]}</TableCell>
+            <TableCell>{rowData[4]}</TableCell>
+            <TableCell>{rowData[5]}</TableCell>
+            <TableCell>{rowData[6]}</TableCell>
+            <TableCell>{rowData[7]}</TableCell>
+            <TableCell>{rowData[8]}</TableCell>
+            <TableCell>TODO:EDIT BUTTON</TableCell>
+          </TableRow>
+        </>
+      );
+    },
   };
 
   return (
