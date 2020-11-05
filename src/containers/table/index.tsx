@@ -62,10 +62,8 @@ export default function DataTable() {
   const handleClose = () => {
     setOpen(false);
   };
-  const { loading, error, data } = useQuery(GET_CONTACTS);
-  const { loading: loadingU, error: errorU, data: dataU } = useQuery(
-    GET_USER_CONTACTS
-  );
+  // const { loading, error, data } = useQuery(GET_CONTACTS);
+  const { loading, error, data } = useQuery(GET_USER_CONTACTS);
   const [delete_user] = useMutation(DELETE_CONTACT, {
     update(cache, { data: { delete_user } }) {
       const { user }: any = cache.readQuery({
@@ -77,8 +75,8 @@ export default function DataTable() {
           !returning.find((objFromB: any) => objFromA.id === objFromB.id)
       );
       cache.writeQuery({
-        query: GET_CONTACTS,
-        data: { contact: c },
+        query: GET_USER_CONTACTS,
+        data: { user: c },
       });
     },
   });
@@ -106,11 +104,11 @@ export default function DataTable() {
     },
   ];
 
-  if (loading || loadingU) return <Loading />;
-  if (error || errorU) return <p>Error</p>;
+  if (loading) return <Loading />;
+  if (error) return <p>Error</p>;
   const { contact } = data;
 
-  const { user: userContacts } = dataU;
+  const { user: userContacts } = data;
   const arrayData = userContacts.map((user: User) => [
     user.first_name,
     user.last_name,

@@ -3,7 +3,12 @@ import { Formik, Form, Field } from "formik";
 import { Button, LinearProgress } from "@material-ui/core";
 import { TextField } from "formik-material-ui";
 import { useMutation, useApolloClient, useQuery } from "@apollo/client";
-import { CREATE_CONTACT, GET_CONTACTS, UPDATE_CONTACT } from "../../graphql";
+import {
+  CREATE_CONTACT,
+  GET_CONTACTS,
+  UPDATE_CONTACT,
+  GET_USER_CONTACTS,
+} from "../../graphql";
 import { uuid } from "uuidv4";
 
 interface Values {
@@ -29,10 +34,10 @@ export default function FormPropsTextFields({ handleClose, rowData }: props) {
 
   const [insert_contact] = useMutation(CREATE_CONTACT, {
     update(cache, { data: { insert_contact } }) {
-      const { contact }: any = cache.readQuery({ query: GET_CONTACTS });
+      const { user }: any = cache.readQuery({ query: GET_USER_CONTACTS });
       cache.writeQuery({
-        query: GET_CONTACTS,
-        data: { contact: contact.concat([insert_contact.returning[0]]) },
+        query: GET_USER_CONTACTS,
+        data: { user: user.concat([insert_contact.returning[0]]) },
       });
     },
   });
